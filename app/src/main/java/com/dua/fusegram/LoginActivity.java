@@ -5,10 +5,14 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +22,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+
+import static com.dua.fusegram.R.drawable.rounded_btn2;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     boolean istTym=true;
 
 
+    @SuppressLint("ResourceAsColor")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +47,15 @@ public class LoginActivity extends AppCompatActivity {
         userLogin=findViewById(R.id.btnLogin);
         progressDialog=new ProgressDialog(this);
 
+        String email=userEmailId.getText().toString().trim();
+        String password=userPassword.getText().toString();
+        userEmailId.addTextChangedListener(mTextWatcher);
+        userPassword.addTextChangedListener(mTextWatcher);
+
+        // run once to disable if empty
+        checkFieldsForEmptyValues();
+
+
         userLogin.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceType")
             @Override
@@ -47,34 +63,50 @@ public class LoginActivity extends AppCompatActivity {
                 String email=userEmailId.getText().toString().trim();
                 String password=userPassword.getText().toString();
 
-                if(istTym=true) {
-
-                    if (TextUtils.isEmpty(email)) {
-                        userEmailId.setHint("Please enter your Email!");
-                        userEmailId.setHintTextColor(Color.RED);
-                        userEmailId.setTypeface(Typeface.SERIF);
-
-                    }
-                    if (TextUtils.isEmpty(password)) {
-                        userPassword.setHint("Please enter your Password!");
-                        userPassword.setHintTextColor(Color.RED);
-                        userPassword.setTypeface(Typeface.SERIF);
-                    }
-                    istTym=false;
-                }
-                if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password))
-                {
-                    logInUser(email,password);
-                    //default login id is ajaykhanna123ak@gmail.com
-                    //////password=123456
-                }
-
+                logInUser(email,password);
+                //default login id is ajaykhanna123ak@gmail.com
+                //////password=123456
             }
         });
-
-
-
     }
+
+
+
+    private TextWatcher mTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            // check Fields For Empty Values
+            checkFieldsForEmptyValues();
+        }
+    };
+
+    @SuppressLint("ResourceAsColor")
+    void checkFieldsForEmptyValues(){
+
+        String email = userEmailId.getText().toString();
+        String password = userPassword.getText().toString();
+
+        if(email.equals("")|| password.equals("")){
+            userLogin.setEnabled(false);
+            userLogin.setBackgroundResource(R.drawable.rounded_btn2);
+            userLogin.setTextColor(R.color.buttonDisabledColor);
+        } else {
+            userLogin.setEnabled(true);
+            userLogin.setBackgroundResource(R.drawable.rounded_btn);
+            userLogin.setTextColor(Color.WHITE);
+        }
+    }
+
+
+
 
     private void logInUser(String email, String password)
     {
@@ -107,4 +139,5 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
 
     }
+
 }
