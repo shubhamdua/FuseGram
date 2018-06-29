@@ -6,4 +6,5 @@
     <color name="normal">#1976D2</color>
     <color name="hovered">#1A237E</color>
     <color name="black">#000000</color>
+    <color name="textHighligtRed">#ea1d1a</color>
 </resources>
