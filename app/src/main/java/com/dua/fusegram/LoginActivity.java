@@ -65,6 +65,8 @@ public class LoginActivity extends AppCompatActivity {
                 if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password))
                 {
                     logInUser(email,password);
+                    //default login id is ajaykhanna123ak@gmail.com
+                    //////password=123456
                 }
 
             }
