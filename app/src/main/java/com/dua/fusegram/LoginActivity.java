@@ -97,7 +97,8 @@ public class LoginActivity extends AppCompatActivity {
         if(email.equals("")|| password.equals("")){
             userLogin.setEnabled(false);
             userLogin.setBackgroundResource(R.drawable.rounded_btn2);
-            userLogin.setTextColor(R.color.buttonDisabledColor);
+            int c=getResources().getColor(R.color.buttonDisabledColor);
+            userLogin.setTextColor(c);
         } else {
             userLogin.setEnabled(true);
             userLogin.setBackgroundResource(R.drawable.rounded_btn);
