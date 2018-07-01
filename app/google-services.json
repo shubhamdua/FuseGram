@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "435150096997",
+    "firebase_url": "https://fusegram.firebaseio.com",
+    "project_id": "fusegram",
+    "storage_bucket": "fusegram.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435150096997:android:0f1257fad215a73a",
+        "android_client_info": {
+          "package_name": "com.dua.fusegram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "435150096997-u7nf7ds2kt03hjav3i0mo0d5ksgc6ujd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dua.fusegram",
+            "certificate_hash": "e2435978029d7c878685a3bb97d5a5bcfc92eb45"
+          }
+        },
+        {
+          "client_id": "435150096997-5vm1ek76488p5668pchsn0fcdqvuhidt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dua.fusegram",
+            "certificate_hash": "b70e5e9050b092395e412bd28aeb3a52bedbd66b"
+          }
+        },
+        {
+          "client_id": "435150096997-30batc4nebo09kb5ejaj52h765284apn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBie6wzDZ_pIf99KT2CWprRLvAFHpOmtHE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435150096997-30batc4nebo09kb5ejaj52h765284apn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
