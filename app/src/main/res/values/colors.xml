@@ -7,4 +7,6 @@
     <color name="hovered">#1A237E</color>
     <color name="black">#000000</color>
     <color name="textHighligtRed">#ea1d1a</color>
+    <color name="whiteColor">#ffffff</color>
+    <color name="buttonDisabledColor">#d6f3f3</color>
 </resources>
