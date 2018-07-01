@@ -111,8 +111,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void logInUser(String email, String password)
     {
-
-
         progressDialog.setTitle("Log In Account");
         progressDialog.setMessage("Please wait while we verify your Account...");
         progressDialog.show();
