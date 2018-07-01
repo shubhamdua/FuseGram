@@ -6,4 +6,8 @@
     <color name="normal">#1976D2</color>
     <color name="hovered">#1A237E</color>
     <color name="black">#000000</color>
+    <color name="white">#FFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="editTextBG">#DADADA</color>
+    <color name="textColor">#6e6e6e</color>
 </resources>

@@ -2,5 +2,7 @@
 <resources>
     <array name="preloaded_fonts" translatable="false">
         <item>@font/aldrich</item>
+        <item>@font/alike_angular</item>
+        <item>@font/eater</item>
     </array>
 </resources>
