@@ -2,40 +2,49 @@ package com.dua.fusegram;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
+
+    private static final String TAG = "RegisterActivity";
+
+    private Context mContext;
     ImageButton datePickImgBtn;
     EditText DOB,username,pName,password,confirmPass,email,contact;
     Button btnNext;
     TextView loginHere;
     FirebaseAuth mAuth;
+    FirebaseAuth.AuthStateListener mAuthListener;
     DatabaseReference mDatabase;
-    ProgressDialog mDialog;
+    private FirebaseMethods firebaseMethods;
+    ProgressBar progressBar;
     String sUsername,sName,sPassword,sConfirmPass,sEmail,sContact,sDOB;
+
+    private String append = "";
+
 
     int year_x, month_x, date_x;
     static final int DIALOG_ID=0;
@@ -44,6 +53,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        mContext = RegisterActivity.this;
+        firebaseMethods = new FirebaseMethods(mContext);
+        Log.d(TAG, "onCreate: started.");
 
         username = (EditText) findViewById(R.id.edtUsername);
         pName = (EditText) findViewById(R.id.edtName);
@@ -54,13 +67,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         DOB = (EditText) findViewById(R.id.edtDOB);
         btnNext = (Button) findViewById(R.id.btnNext);
         loginHere = (TextView) findViewById(R.id.txtLoginHere);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
 
-        mAuth= FirebaseAuth.getInstance();
+        setupFirebaseAuth();
 
         btnNext.setOnClickListener(this);
         loginHere.setOnClickListener(this);
-        mDialog=new ProgressDialog(this);
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 
         final Calendar cal = Calendar.getInstance();
         year_x = cal.get(Calendar.YEAR);
@@ -122,93 +135,109 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         sContact = contact.getText().toString();
         sDOB = DOB.getText().toString();
 
-        if(TextUtils.isEmpty(sUsername)){
-            Toast.makeText(this, "Enter Username", Toast.LENGTH_SHORT).show();
+        if(checkInputs(sUsername,sName,sPassword,sConfirmPass,sEmail,sContact,sDOB)){
+            progressBar.setVisibility(View.VISIBLE);
+            firebaseMethods.registerNewEmail(sEmail, sPassword);
+
         }
-        else if(TextUtils.isEmpty(sName)){
-            Toast.makeText(this, "Enter Name", Toast.LENGTH_SHORT).show();
+
+
+    }
+
+
+    private boolean checkInputs( String username, String name, String password, String cpassword, String email, String contact, String dob){
+        Log.d(TAG, "checkInputs: checking inputs for null values.");
+        if(username.equals("") || name.equals("") || password.equals("") || cpassword.equals("") || email.equals("") || contact.equals("") || dob.equals("")){
+            Toast.makeText(mContext, "All fields must be filled out.", Toast.LENGTH_SHORT).show();
+            return false;
         }
-        else if(TextUtils.isEmpty(sPassword)){
-            Toast.makeText(this, "Enter Password", Toast.LENGTH_SHORT).show();
+        else if(password.length()<6){
+            Toast.makeText(mContext, "Password length must be atleast 6 characters", Toast.LENGTH_SHORT).show();
+            return false;
         }
-        else if(sPassword.length()<6){
-            Toast.makeText(this, "Password must be of atleast 6 digits", Toast.LENGTH_SHORT).show();
+        else if(!password.equals(cpassword)){
+            Toast.makeText(mContext, "Password and Confirmed Password are not same...", Toast.LENGTH_SHORT).show();
+            return false;
         }
-        else if(TextUtils.isEmpty(sConfirmPass)){
-            Toast.makeText(this, "Please Confirm Password", Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    private boolean isStringNull(String string){
+        Log.d(TAG, "isStringNull: checking string if null.");
+
+        if(string.equals("")){
+            return true;
         }
-        else if(TextUtils.isEmpty(sEmail)){
-            Toast.makeText(this, "Enter Email", Toast.LENGTH_SHORT).show();
+        else{
+            return false;
         }
-        else if(TextUtils.isEmpty(sContact)){
-            Toast.makeText(this, "Enter Contact", Toast.LENGTH_SHORT).show();
-        }
-        else if(TextUtils.isEmpty(sDOB)){
-            Toast.makeText(this, "Enter Date Of Birth", Toast.LENGTH_SHORT).show();
-        }
-        else if(!sPassword.equals(sConfirmPass)){
-            Toast.makeText(this, "Password and Confirmed Password are not same", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            mDialog.setMessage("Creating Account Please wait...");
-            mDialog.setCanceledOnTouchOutside(false);
-            mDialog.show();
-            mAuth.createUserWithEmailAndPassword(sEmail, sPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        mDialog.dismiss();
-                        onAuth(task.getResult().getUser());
-                        //startActivity(new Intent(RegisterActivity.this, OTPActivity.class));
-                    } else {
-                        Toast.makeText(RegisterActivity.this, "Error in account creation !!", Toast.LENGTH_SHORT).show();
-                    }
+    }
+
+
+    /**
+     * Setup the firebase auth object
+     */
+    private void setupFirebaseAuth(){
+        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+
+        mAuth = FirebaseAuth.getInstance();
+       mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+
+                    mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            //1st check: Make sure the username is not already in use
+                            if(firebaseMethods.checkIfUsernameExists(sUsername, dataSnapshot)){
+                                append = mDatabase.push().getKey().substring(3,10);
+                                Log.d(TAG, "onDataChange: username already exists. Appending random string to name: " + append);
+                            }
+                            sUsername = sUsername + append;
+
+                            //add new user to the database
+                            firebaseMethods.addNewUser(sUsername, sName, sEmail, sContact,sDOB,"","","");
+                            Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
+
+                            mAuth.signOut();
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    finish();
+
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
+                // ...
+            }
+        };
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
 
-            });
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
         }
-
-    }
-
-    private void onAuth(FirebaseUser user) {
-        createANewUser(user.getUid());
-    }
-
-    private void createANewUser(String uid) {
-        User user = buildNewUser();
-        mDatabase.child(uid).setValue(user);
-    }
-
-    private User buildNewUser() {
-
-        return new User(
-                getUsername(),
-                getPname(),
-                getEmail(),
-                getContact(),
-                getDOB(),
-                new Date().getTime()
-        );
-    }
-
-    public String getUsername() {
-        return sUsername;
-    }
-
-    public String getPname() {
-        return sName;
-    }
-
-    public String getEmail() {
-        return sEmail;
-    }
-
-    public String getContact() {
-        return sContact;
-    }
-
-    public String getDOB() {
-        return sDOB;
     }
 }

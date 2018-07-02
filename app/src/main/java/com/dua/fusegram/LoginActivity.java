@@ -45,6 +45,8 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                mUser = firebaseAuth.getCurrentUser();
+                //checkCurrentUser(mUser);
                 if(mUser!=null){
                     Toast.makeText(LoginActivity.this,"Login successful"
                             ,Toast.LENGTH_LONG).show();
@@ -60,8 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         userLogin=findViewById(R.id.btnLogin);
         progressDialog=new ProgressDialog(this);
 
-        String email=userEmailId.getText().toString().trim();
-        String password=userPassword.getText().toString();
         userEmailId.addTextChangedListener(mTextWatcher);
         userPassword.addTextChangedListener(mTextWatcher);
 
@@ -82,6 +82,15 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+    //Checks if the user logged in
+    /*private void checkCurrentUser(FirebaseUser mUser) {
+        if(mUser!=null){
+            Intent i=new Intent(this,OTPActivity.class);
+            startActivity(i);
+        }
+    }*/
+
     public void startRegisterActivity(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);;
         startActivity(intent);
@@ -138,10 +147,24 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        FirebaseUser user =emailAuth.getCurrentUser();
+
                         if(task.isSuccessful())
                         {
-                           Toast.makeText(LoginActivity.this,"Login successful"
-                           ,Toast.LENGTH_LONG).show();
+                            try{
+                                if(user.isEmailVerified()){
+                                    Toast.makeText(LoginActivity.this, "Email is verified..Successful Login...", Toast.LENGTH_SHORT).show();
+                                }
+                                else{
+                                    Toast.makeText(LoginActivity.this, "Email is not Verified..Check Mail inbox...", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                    emailAuth.signOut();
+                                }
+                            }
+                            catch(NullPointerException e){
+                                Log.d("LoginActivity","OnComplete : NullPointerException: "+e.getMessage());
+                            }
+
                         }
                         else
                         {
