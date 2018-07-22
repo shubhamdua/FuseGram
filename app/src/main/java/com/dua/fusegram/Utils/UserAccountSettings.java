@@ -1,4 +1,4 @@
-package com.dua.fusegram;
+package com.dua.fusegram.Utils;
 
 public class UserAccountSettings {
 

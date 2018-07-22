@@ -1,4 +1,4 @@
-package com.dua.fusegram;
+package com.dua.fusegram.Activity;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.dua.fusegram.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -30,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
     EditText userEmailId;
     EditText userPassword;
     private ProgressDialog progressDialog;
-    boolean istTym=true;
 
 
     @SuppressLint("ResourceAsColor")
@@ -39,28 +39,28 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        userEmailId=findViewById(R.id.edtEmailId);
+        userPassword=findViewById(R.id.edtPassword);
+        userLogin=findViewById(R.id.btnLogin);
+        progressDialog=new ProgressDialog(this);
+
         emailAuth=FirebaseAuth.getInstance();
+
         mAuthListener= new FirebaseAuth.AuthStateListener()
         {
 
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 mUser = firebaseAuth.getCurrentUser();
-                //checkCurrentUser(mUser);
-                if(mUser!=null){
-                    Toast.makeText(LoginActivity.this,"Login successful"
-                            ,Toast.LENGTH_LONG).show();
-                }
-                else{
-                    Log.d("Login","AuthStateChange:LogOut");
+                if (mUser != null) {
+                    // User is signed in
+                    Log.d("LoginActivity", "onAuthStateChanged:signed_in:" + mUser.getUid());
+                } else {
+                    // User is signed out
+                    Log.d("LoginActivity", "onAuthStateChanged:signed_out");
                 }
             }
         };
-
-        userEmailId=findViewById(R.id.edtEmailId);
-        userPassword=findViewById(R.id.edtPassword);
-        userLogin=findViewById(R.id.btnLogin);
-        progressDialog=new ProgressDialog(this);
 
         userEmailId.addTextChangedListener(mTextWatcher);
         userPassword.addTextChangedListener(mTextWatcher);
@@ -81,15 +81,16 @@ public class LoginActivity extends AppCompatActivity {
                 //////password=123456
             }
         });
+
+       // If the user is logged in then navigate to HomeActivity and call 'finish()'
+        if(emailAuth.getCurrentUser() != null){
+            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
     }
 
-    //Checks if the user logged in
-    /*private void checkCurrentUser(FirebaseUser mUser) {
-        if(mUser!=null){
-            Intent i=new Intent(this,OTPActivity.class);
-            startActivity(i);
-        }
-    }*/
 
     public void startRegisterActivity(View view) {
         Intent intent = new Intent(this, RegisterActivity.class);;
@@ -154,6 +155,9 @@ public class LoginActivity extends AppCompatActivity {
                             try{
                                 if(user.isEmailVerified()){
                                     Toast.makeText(LoginActivity.this, "Email is verified..Successful Login...", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    finish();
                                 }
                                 else{
                                     Toast.makeText(LoginActivity.this, "Email is not Verified..Check Mail inbox...", Toast.LENGTH_SHORT).show();

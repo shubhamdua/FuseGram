@@ -1,10 +1,11 @@
-package com.dua.fusegram;
+package com.dua.fusegram.Utils;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.dua.fusegram.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -14,7 +15,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-class FirebaseMethods {
+public class FirebaseMethods {
     private static final String TAG = "FirebaseMethods";
 
     //firebase

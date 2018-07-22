@@ -4,4 +4,12 @@
     <string name="auth_success" position="centre">Authentication Success !!</string>
     <string name="dbname_users">users</string>
     <string name="dbname_user_account_settings">user_account_settings</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_chats">Chats</string>
+    <string name="title_stories">Stories</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="editProfile">Edit Profile</string>
+    <string name="logOut">Log Out</string>
 </resources>
